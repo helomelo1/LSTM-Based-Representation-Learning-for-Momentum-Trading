@@ -88,14 +88,14 @@ The script will:
 2. **log_returns_5d**: 5-day rolling momentum
 3. **vol_10d**: 10-day volatility
 4. **vol_z**: Volume z-score (normalized volume)
-5. **vwap**: VWAP deviation from closing price
+5. **vwap**: Volume Weighted Average Price (average of high, low, close)
 
 ## Trading Strategy
 
 The model generates trading signals based on predicted returns:
-- **Long Signal**: Top 20th percentile of predictions
-- **Short Signal**: Bottom 20th percentile of predictions
-- **Neutral**: Middle 60% of predictions
+- **Long Signal**: Predictions above the 80th percentile threshold
+- **Short Signal**: Predictions below negative 80th percentile threshold
+- **Neutral**: Predictions between these thresholds
 
 ## Performance Metrics
 
@@ -125,7 +125,7 @@ The system outputs:
 ### Data Processing
 - Historical stock data is downloaded via yfinance API
 - Technical features are engineered including momentum, volatility, and volume indicators
-- Data is normalized and structured into sequences for LSTM input
+- Data is structured into sequences for LSTM input
 
 ### Model Training
 - 80/20 train-test split
