@@ -5,12 +5,15 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from data import load_dataset
 
+SEED = 0
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+torch.cuda.manual_seed_all(SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 
-TICKERS = ["RELIANCE.NS",
-            "TCS.NS",
-            "INFY.NS",
-            "HDFCBANK.NS",
-            "ICICIBANK.NS"]
+
+TICKERS = ["TSLA", "AAPL", "MSFT", "GOOGL", "AMZN"]
 START_DATE = "2016-01-01"
 END_DATE = "2024-01-01"
 INTERVAL = "1d"
@@ -22,18 +25,22 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class LSTM_model(nn.Module):
-    def __init__(self, num_features, hidden_size=64):
+    def __init__(self, num_features, hidden_size=64):#, num_layers=2, dropout=0.2):
         super().__init__()
         self.lstm = nn.LSTM(
             input_size=num_features,
             hidden_size=hidden_size,
+            # num_layers=num_layers,
+            # dropout=dropout if num_layers > 1 else 0.0,
             batch_first=True
         )
+        # self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(hidden_size, 1)
 
     def forward(self, x):
         _, (h_n, _) = self.lstm(x)
         h = h_n[-1]
+        # h = self.dropout(h)
         out = self.fc(h).squeeze(-1)
 
         return out

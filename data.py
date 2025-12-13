@@ -25,7 +25,7 @@ def download_data(tickers, start, end, interval='1d') -> pd.DataFrame:
         frames.append(df)
 
     df = pd.concat(frames, axis=0)
-    df = df.sort_values(['ticker', 'data']).reset_index(drop=True)
+    df = df.sort_values(['ticker', 'date']).reset_index(drop=True)
 
     return df
 
@@ -55,8 +55,8 @@ def make_seq(df: pd.DataFrame, feature_columns, lookback=20):
         group = group.dropna().reset_index(drop=True)
 
         for i in range(lookback, len(group) - 1):
-            X.append(group.loc[i - lookback:i - 1, feature_columns].values)
-            y.append(group.loc[i, 'log_returns_1d'])
+            X.append(group.loc[i - lookback:i - 1][feature_columns].values)
+            y.append(group.loc[i]['log_returns_1d'])
 
     return (
         np.array(X, dtype=np.float64),
