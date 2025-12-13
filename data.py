@@ -48,19 +48,20 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def make_seq(df: pd.DataFrame, feature_columns, lookback=20):
+def make_seq(df: pd.DataFrame, feature_columns, lookback=20, horizon=5):
     X, y = [], []
 
     for ticker, group in df.groupby('ticker'):
         group = group.dropna().reset_index(drop=True)
 
-        for i in range(lookback, len(group) - 1):
+        for i in range(lookback, len(group) - horizon):
             X.append(group.loc[i - lookback:i - 1][feature_columns].values)
-            y.append(group.loc[i]['log_returns_1d'])
+            future_return = group.iloc[i : i + horizon]['log_returns_1d'].sum()
+            y.append(future_return)
 
     return (
-        np.array(X, dtype=np.float64),
-        np.array(y, dtype=np.float64)
+        np.array(X, dtype=np.float32),
+        np.array(y, dtype=np.float32)
     )
 
 

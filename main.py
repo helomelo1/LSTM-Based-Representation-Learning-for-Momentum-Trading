@@ -13,7 +13,14 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 
-TICKERS = ["TSLA", "AAPL", "MSFT", "GOOGL", "AMZN"]
+TICKERS = [
+    "AAPL","MSFT","AMZN","GOOGL","META",
+    "NVDA","JPM","BAC","XOM","CVX",
+    "JNJ","PFE","KO","PEP","WMT",
+    "DIS","NFLX","INTC","AMD","TSLA",
+    "CAT","BA","GE","MMM","IBM",
+    "GS","MS","AXP","V","MA"
+]
 START_DATE = "2016-01-01"
 END_DATE = "2024-01-01"
 INTERVAL = "1d"
