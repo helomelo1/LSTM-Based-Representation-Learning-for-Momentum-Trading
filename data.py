@@ -19,6 +19,7 @@ def download_data(tickers, start, end, interval='1d') -> pd.DataFrame:
     for ticker in tickers:
         df = data[ticker].copy()
         df['ticker'] = ticker
+        df = df.reset_index()
         df.columns = [c.lower().replace(' ', '_') for c in df.columns]
 
         frames.append(df)
