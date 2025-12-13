@@ -49,7 +49,7 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def make_seq(df: pd.DataFrame, feature_columns, lookback=20, horizon=5):
-    X, y = [], []
+    X, y, tickers_out = [], [], []
 
     for ticker, group in df.groupby('ticker'):
         group = group.dropna().reset_index(drop=True)
@@ -59,9 +59,12 @@ def make_seq(df: pd.DataFrame, feature_columns, lookback=20, horizon=5):
             future_return = group.iloc[i : i + horizon]['log_returns_1d'].sum()
             y.append(future_return)
 
+            tickers_out.append(ticker)
+
     return (
         np.array(X, dtype=np.float32),
-        np.array(y, dtype=np.float32)
+        np.array(y, dtype=np.float32),
+        np.array(tickers_out)
     )
 
 
@@ -77,6 +80,6 @@ def load_dataset(ticker, start, end, interval='1d', lookback=20):
         'vwap'
     ]
 
-    X, y = make_seq(df, feature_columns=feature_cols, lookback=lookback)
+    X, y, tickers_out = make_seq(df, feature_columns=feature_cols, lookback=lookback)
 
-    return X, y
+    return X, y, tickers_out

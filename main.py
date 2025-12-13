@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -53,7 +54,7 @@ class LSTM_model(nn.Module):
         return out
     
 
-X, y = load_dataset(
+X, y, tickers_out = load_dataset(
     ticker=TICKERS,
     start=START_DATE,
     end=END_DATE,
@@ -117,17 +118,37 @@ true = y_test.numpy()
 
 threshold = np.percentile(preds, 80)
 
-signals = np.zeros_like(preds)
-signals[preds > threshold] = 1  # Long Signal
-signals[preds < -threshold] = -1   # Short Signal
+# signals = np.zeros_like(preds)
+# signals[preds > threshold] = 1  # Long Signal
+# signals[preds < -threshold] = -1   # Short Signal
 
-strategy_returns = signals * true
-mean_return = strategy_returns.mean()
-std_return = strategy_returns.std()
+signals = np.sign(preds)
+dead_zone = np.percentile(np.abs(preds), 30)
+signals[np.abs(preds) < dead_zone] = 0
 
-sharpe = mean_return / std_return * np.sqrt(252)
+# strategy_returns = signals * true
+# mean_return = strategy_returns.mean()
+# std_return = strategy_returns.std()
 
+df = pd.DataFrame({
+    'ticker': tickers_out[split:],
+    'signal': signals,
+    'returns': true
+})
 
-print(f"Mean daily return: {mean_return:.6f}")
-print(f"Daily volatility : {std_return:.6f}")
-print(f"Sharpe ratio     : {sharpe:.2f}")
+# sharpe = mean_return / std_return * np.sqrt(252)
+sharpes = {}
+
+for tkr, g in df.groupby('ticker'):
+    r = g.signal * g.returns
+    if r.std() > 0:
+        sharpes[tkr] = r.mean() / r.std() * np.sqrt(252)
+
+for a, b in sharpes.items():
+    print(f"{a:5s}: Sharpe Ratio: {b:.2f}")
+
+print(f"\nAverage Sharpe: {np.mean(list(sharpes.values())):.2f}")
+
+# print(f"Mean daily return: {mean_return:.6f}")
+# print(f"Daily volatility : {std_return:.6f}")
+# print(f"Sharpe ratio     : {sharpe:.2f}")
