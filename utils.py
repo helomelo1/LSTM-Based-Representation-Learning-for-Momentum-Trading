@@ -2,6 +2,9 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 
+import torch
+import torch.nn as nn
+
 
 def download_data(tickers, start, end, interval='1d') -> pd.DataFrame:
     data = yf.download(
@@ -83,6 +86,24 @@ def load_dataset(ticker, start, end, interval='1d', lookback=20):
     X, y, tickers_out = make_seq(df, feature_columns=feature_cols, lookback=lookback)
 
     return X, y, tickers_out
+
+
+class SharpeLoss(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, positions, returns):
+        strategy_returns = positions * returns
+
+        expected_returns = torch.mean(strategy_returns)
+        std_returns = torch.std()
+
+        if std_returns == 0:
+            return torch.tensor(0.0, requires_grad=True)
+        
+        sharpe = (expected_returns / std_returns) * torch.sqrt(torch.tensor(252.0))
+
+        return -sharpe
 
 
 def log_to_pct(log_returns):

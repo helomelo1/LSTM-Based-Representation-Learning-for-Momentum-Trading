@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
-from data import load_dataset
+from utils import load_dataset
 
 SEED = 0
 np.random.seed(SEED)
