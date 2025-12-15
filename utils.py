@@ -83,3 +83,22 @@ def load_dataset(ticker, start, end, interval='1d', lookback=20):
     X, y, tickers_out = make_seq(df, feature_columns=feature_cols, lookback=lookback)
 
     return X, y, tickers_out
+
+
+def log_to_pct(log_returns):
+    return np.exp(log_returns) - 1
+
+
+def cumulative_return_pct(returns_pct):
+    return np.prod(1 + returns_pct) - 1
+
+
+def max_drawdown(returns_pct):
+    equity = np.cumprod(1 + returns_pct)
+    peak = np.maximum.accumulate(equity)
+    drawdown = (equity - peak) / peak
+    return drawdown.min()
+
+
+def win_rate_pct(returns_pct):
+    return np.mean(returns_pct > 0)
